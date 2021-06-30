@@ -8,6 +8,27 @@ function close_to(a,b) {
     return ((Math.abs(a.x - b.x) < 5 )  && (Math.abs(a.y - b.y) <5))
 }
 
+function rand_int(n) {
+    return Math.floor((Math.random() * 100) + 1);
+}
+
+function randr(a,b) {
+    if (!b) {
+        b= a;
+        a = 0;
+    }
+    return ((Math.random() * (b-a)) +a);
+}
+
+function randDir(speed) {
+    speed = speed ||1  ;
+    let a = randr(6.28);
+    return {
+        x:speed*Math.sin(a),
+        y:speed*Math.cos(a),
+    };
+}
+
 
 const wayPoints=[{x:600,y:50},{x:50,y:350},{x:10,y:10},{x:1,y:1}];
 const way2 = [ { x:100,y:500}, {x:500,y:100}];
@@ -18,6 +39,7 @@ loadRoot("assets/");
 loadSprite("coin","coin.png");
 loadSprite("bullet","bullet.png");
 loadSprite("ship","ship.png");
+loadSprite("asteroid","asteroid.png");
 loadSprite("alien","alien.png",{
     sliceX:3,
     anims:{
@@ -69,24 +91,24 @@ function spinner(speed,friction) {
    }
 }
 
-function velocity(vx,vy,friction){
+function velocity(v,friction){
     friction = friction || 0;
     return {
         add(){
             this.action(()=> {
                 let d = dt();
-                vx *= 1-(d*friction);
-                vy *= 1-(d*friction);
-                this.pos.x += vx * d;
-                this.pos.y += vy * d;
+                v.x *= 1-(d*friction);
+                v.y *= 1-(d*friction);
+                this.pos.x += v.x * d;
+                this.pos.y += v.y * d;
             })
         },
         push(nx,ny){
-            vx += nx;
-            vy += ny;
+            v.x += nx;
+            v.y += ny;
         },
         vel(){
-            return {vx:vx,vy:vy};
+            return {x:v.x,y:v.y};
         }
     }
 }
@@ -141,7 +163,7 @@ function shooter(speed,offset) {
                 let cosa = Math.cos(a);
                 let sina = Math.sin(a);
                 
-                add(["bullet",sprite("bullet"),pos(this.pos.x - offset*sina,this.pos.y-offset *cosa),origin("center"),rotate(this.angle),killer("coin"),velocity(vel.vx -speed*sina,vel.vy-speed*cosa,0),ttl(2)]);
+                add(["bullet",sprite("bullet"),pos(this.pos.x - offset*sina,this.pos.y-offset *cosa),origin("center"),rotate(this.angle),killer("asteroid"),velocity({x:vel.x -speed*sina,y:vel.y-speed*cosa},0),ttl(2)]);
             });
         }
     }
@@ -216,14 +238,15 @@ function killer(target){
 // define a scene
 const s1 = k.scene("main", () => {
 
-    let al = add(["alien",sprite("alien"),pos(60,10),origin("center"),rotate(0),spinner(3)]);
+    /*let al = add(["alien",sprite("alien"),pos(60,10),origin("center"),rotate(0),spinner(3)]);
     al.animSpeed = 0.2;
-    al.play("move");
+    al.play("move");*/
 
-    add(["ship",scale(0.5), sprite("ship") , pos(300,400),origin("center"),rotate(0),velocity(0,0,0.3),spinner(0,3),spaceControls(5,10),boundsHopper(border),shooter(100)]);
+    add(["ship",scale(0.5), sprite("ship") , pos(300,400),origin("center"),rotate(0),velocity({x:0,y:0},0.3),spinner(0,3),spaceControls(5,10),boundsHopper(border),shooter(200)]);
 
-    loop(10 ,()=>{
-        add(["coin",sprite("coin"),area(vec2(-9),vec2(9)),pos(10,10),waypoints(wayPoints,100),rotate(0),spinner(2),origin("center"),ttl(100)]);
+    loop(5 ,()=>{
+
+        add(["asteroid",sprite("asteroid"),scale(0.5),area(vec2(-20),vec2(20)),pos(10,10),velocity(randDir(randr(10,30))),rotate(randr(7)),spinner(randr(1,4)),origin("center"),boundsHopper(border)]);
     });
     keyPress("escape",()=>{go("two")})
 });

@@ -86,7 +86,9 @@ export function velocity(v,friction){
             v.x += nx;
             v.y += ny;
         },
-        vel(){
+        vel(x,y){
+            v.x = x ?? v.x;
+            v.y = y ?? v.y;
             return {x:v.x,y:v.y};
         }
     }
@@ -146,4 +148,5 @@ export function ttl(time){
         }
     }
 }
+
 

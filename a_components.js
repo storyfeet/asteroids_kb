@@ -9,7 +9,7 @@ export function asteroid(ob){
             //area(vec2(-20),vec2(20)),
             pos(ob.pos?.x ?? ob.x ?? 10,ob.pos.y ?? ob.y ?? 10),
             gc.velocity(
-                ob.vel ?? gc.randDir(gc.randr(10,30))),
+                ob.vel ?? gc.randDir(gc.randr(20,50))),
                 rotate(gc.randr(7)
                 ),
             gc.spinner(gc.randr(-4,4)),

@@ -1,5 +1,6 @@
 import * as gc from "./general.js";
 export const border = {x: -20,y:-20,w : 680,h:520};
+
 export function asteroid(ob){ 
         let sp = ob.splits ?? 0;
         add([
@@ -16,7 +17,8 @@ export function asteroid(ob){
             origin("center"),
             gc.boundsHopper(border),
             splitDeath(sp),
-            gc.ttl(100)
+            gc.ttl(100),
+            {val:sp+2}
         ]);
 }
 
@@ -41,26 +43,29 @@ export function spaceControls(force,a_force) {
     }
 }
 
-export function shooter(speed,offset) {
+export function shooter(speed,offset,f_add) {
     offset ||= 10;
     return {
         add(){
             keyPress("space",()=> {
+                f_add(-1);
                 let vel = this.vel();
                 let a = this.angle;
                 let cosa = Math.cos(a);
                 let sina = Math.sin(a);
                 
-                add(["bullet",sprite("bullet"),pos(this.pos.x - offset*sina,this.pos.y-offset *cosa),area(vec2(-1),vec2(1)),origin("center"),rotate(this.angle),killer("asteroid"),gc.velocity({x:vel.x -speed*sina,y:vel.y-speed*cosa},0),gc.ttl(2),gc.boundsHopper(border)]);
+                add(["bullet",sprite("bullet"),pos(this.pos.x - offset*sina,this.pos.y-offset *cosa),area(vec2(-1),vec2(1)),origin("center"),rotate(this.angle),killer("asteroid",f_add),gc.velocity({x:vel.x -speed*sina,y:vel.y-speed*cosa},0),gc.ttl(2),gc.boundsHopper(border)]);
             });
         }
     }
 }
 
-export function killer(target){
+export function killer(target,f_add){
     return {
         add(){
             this.overlaps(target,(item)=>{
+                let val = item.val ?? 1;
+                if (f_add)f_add(val);
                 if (item.die){
                     item.die();
                 }else {
